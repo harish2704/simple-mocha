@@ -1,0 +1,22 @@
+{
+  "name": "simple-mocha",
+  "version": "0.0.1",
+  "description": "Simple stupid implementation of Mocha test runner. Tests can be run directly within node as any Nodejs code.",
+  "author": "Harish.K<harish2704@gmail.com>",
+  "license": "MIT",
+  "keywords": [
+    "mocha",
+    "test runner",
+    "testing"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:harish2704/simple-mocha.git"
+  },
+  "main": "./index.js",
+  "dependencies": {
+    "async": "~1.2.1"
+  },
+  "devDependencies": {},
+  "scripts": {}
+}
