@@ -1,6 +1,6 @@
 {
   "name": "simple-mocha",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Simple stupid implementation of Mocha test runner. Tests can be run directly within node as any Nodejs code.",
   "author": "Harish.K<harish2704@gmail.com>",
   "license": "MIT",

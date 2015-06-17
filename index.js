@@ -13,7 +13,7 @@
 
 
 /* Don't do anything if we are in Mocha's environment */
-if( global.describe ){ return; }
+// if( global.describe ){ return; }
 
 
 
@@ -23,6 +23,13 @@ function padding( str, width ){
   return ( '          ' + str ).slice(-width);
 }
 
+var printer = function(prefix){
+  return function(){
+    var args = [].slice.call(arguments);
+    args[0] = prefix + args[0];
+    console.log.apply(console, args );
+  };
+};
 
 
 function Task(name, fn, parentNode ){
@@ -72,6 +79,7 @@ Task.prototype.print = function(){
 
 function runner( d, cb ){
   cb = cb||function(){};
+  var print = printer( d.indent );
   console.log('');
   print( 'Describe: ', d.name );
 
