@@ -74,6 +74,10 @@ Task.prototype.print = function(){
     padding( '(' + timeTaken + 'ms) ' , 11) +
     this.name
     );
+
+  if( this.err ){
+    console.log( this.err.stack );
+  }
 };
 
 
