@@ -19,19 +19,60 @@ if( global.describe ){ return; }
 
 var async = require('async');
 
+function padding( str, width ){
+  return ( '          ' + str ).slice(-width);
+}
 
-var printer = function(prefix){
-  return function(){
-    var args = [].slice.call(arguments);
-    args[0] = prefix + args[0];
-    console.log.apply(console, args );
+
+
+function Task(name, fn, parentNode ){
+  this.parentNode = parentNode;
+  this.name = name;
+  this.fn = fn;
+  this.isAsync = fn && fn.length;
+}
+
+Task.prototype.exec = function(_cb){
+  if( !this.fn ){ return _cb(); }
+  var _this = this;
+  var cb = function(err){
+    _this.endTime = Date.now();
+    if( err ){
+      _this.err = err;
+      _this.parentNode.errorCount++;
+    }
+    _this.print();
+    _cb();
   };
+
+  this.startTime = Date.now();
+  if( this.isAsync ){
+    return this.fn(cb);
+  }
+  try{
+    this.fn();
+    cb();
+  } catch(e){
+    cb(e);
+  }
+  return;
+};
+
+Task.prototype.print = function(){
+  var timeTaken = this.endTime - this.startTime;
+  console.log(
+    this.parentNode.indent +
+    ' It: ' +
+    ( this.err? 'Fail ' : ' OK  ' )+
+    padding( '(' + timeTaken + 'ms) ' , 11) +
+    this.name
+    );
 };
 
 
 function runner( d, cb ){
-  var print = printer( d.indent );
   cb = cb||function(){};
+  console.log('');
   print( 'Describe: ', d.name );
 
   return async.series([
@@ -52,14 +93,8 @@ function runner( d, cb ){
         if( itItem.its ){
           return runner(itItem, cb);
         }
-        print( ' It: ' + itItem.name );
 
-        if( !itItem.fn ){ return cb(); }
-
-        if( itItem.fn.length ){ return itItem.fn(cb); }
-
-        itItem.fn();
-        return cb();
+        return itItem.exec(cb);
       }, cb );
     },
 
@@ -70,11 +105,11 @@ function runner( d, cb ){
       return d.after(cb);
     },
 
-  ], function(err){
-    print( 'Finished with ' + ( err? '': 'No' ) + ' Error' );
-    if(err){
-      print( 'Error ', err.stack );
+  ], function(){
+    if( d.parentNode ){
+      d.parentNode.errorCount += d.errorCount;
     }
+    print( 'Finished with ' + ( d.errorCount || 'No' ) + ' Error' );
     return cb();
   });
 }
@@ -86,19 +121,21 @@ var store = {
 
 
 var describe = function(str, fn ){
-  var parentDesc = store.currentDescribe;
+  var parentNode = store.currentDescribe;
   var descItem = {
     name: str,
     its: [],
-    indent: '  ' + ( parentDesc? parentDesc.indent : '' ),
+    indent: '  ' + ( parentNode? parentNode.indent : '' ),
+    errorCount: 0,
+    parentNode: parentNode,
   };
   store.currentDescribe = descItem;
 
   fn();
 
-  if( parentDesc ){
-    parentDesc.its.push( descItem );
-    store.currentDescribe = parentDesc;
+  if( parentNode ){
+    parentNode.its.push( descItem );
+    store.currentDescribe = parentNode;
   } else {
     runner(descItem);
   }
@@ -107,11 +144,8 @@ var describe = function(str, fn ){
 
 
 var it = function( str, fn ){
-
-  store.currentDescribe.its.push({ 
-    name : str,
-    fn: fn
-  });
+  var task = new Task(str, fn, store.currentDescribe );
+  store.currentDescribe.its.push( task );
 };
 it.skip = function(){};
 
