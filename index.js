@@ -53,12 +53,13 @@ Task.prototype.exec = function(_cb){
   };
 
   this.startTime = Date.now();
-  if( this.isAsync ){
-    return this.fn(cb);
-  }
   try{
-    this.fn();
-    cb();
+    if( this.isAsync ){
+      this.fn(cb);
+    } else {
+      this.fn();
+      cb();
+    }
   } catch(e){
     cb(e);
   }
@@ -76,7 +77,12 @@ Task.prototype.print = function(){
     );
 
   if( this.err ){
-    console.log( this.err.stack );
+    if(this.err instanceof Error ){
+      // console.log( this.err.stack );
+      console.log( this.err );
+    }else{
+      console.log( this.err );
+    }
   }
 };
 
