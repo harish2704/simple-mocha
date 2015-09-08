@@ -19,6 +19,9 @@ if( global.describe ){ return; }
 
 var async = require('async');
 
+function padding( str, width ){
+  return ( '          ' + str ).slice(-width);
+}
 
 var printer = function(prefix){
   return function(){
@@ -29,9 +32,65 @@ var printer = function(prefix){
 };
 
 
+function Task(name, fn, parentNode ){
+  this.parentNode = parentNode;
+  this.name = name;
+  this.fn = fn;
+  this.isAsync = fn && fn.length;
+}
+
+Task.prototype.exec = function(_cb){
+  if( !this.fn ){ return _cb(); }
+  var _this = this;
+  var cb = function(err){
+    _this.endTime = Date.now();
+    if( err ){
+      _this.err = err;
+      _this.parentNode.errorCount++;
+    }
+    _this.print();
+    _cb(err);
+  };
+
+  this.startTime = Date.now();
+  if( this.isAsync ){
+    try{
+      this.fn(cb);
+    } catch(e){
+      cb(e);
+    } finally{
+      return;
+    }
+  }
+  try{
+    this.fn();
+    cb();
+  } catch(e){
+    cb(e);
+  }
+  return;
+};
+
+Task.prototype.print = function(){
+  var timeTaken = this.endTime - this.startTime;
+  var err = this.err;
+  console.log(
+    this.parentNode.indent +
+    this.name +
+    ( err? ' Fail ' : '  OK  ' )+
+    padding( '(' + timeTaken + 'ms) ' , 11));
+  if(err){
+    console.log('');
+    console.log( err.stack );
+    console.log('');
+  }
+};
+
+
 function runner( d, cb ){
-  var print = printer( d.indent );
   cb = cb||function(){};
+  var print = printer( d.indent );
+  console.log('');
   print( 'Describe: ', d.name );
 
   return async.series([
@@ -40,11 +99,12 @@ function runner( d, cb ){
     function(cb){
       if(!d.before){ return cb(); }
       print( ' Before hook' );
-      return d.before(cb);
+      return d.before.exec(cb);
     },
 
     /* Then each It functions */
     function(cb){
+      console.log( 'starting its...');
       async.eachSeries(d.its,
       function(itItem, cb ){
 
@@ -52,14 +112,8 @@ function runner( d, cb ){
         if( itItem.its ){
           return runner(itItem, cb);
         }
-        print( ' It: ' + itItem.name );
 
-        if( !itItem.fn ){ return cb(); }
-
-        if( itItem.fn.length ){ return itItem.fn(cb); }
-
-        itItem.fn();
-        return cb();
+        return itItem.exec(cb);
       }, cb );
     },
 
@@ -67,14 +121,14 @@ function runner( d, cb ){
     function(cb){
       if(!d.after){ return cb(); }
       print( ' After hook' );
-      return d.after(cb);
+      return d.after.exec(cb);
     },
 
-  ], function(err){
-    print( 'Finished with ' + ( err? '': 'No' ) + ' Error' );
-    if(err){
-      print( 'Error ', err.stack );
+  ], function( ){
+    if( d.parentNode ){
+      d.parentNode.errorCount += d.errorCount;
     }
+    print( 'Finished with ' + ( d.errorCount || 'No' ) + ' Error' );
     return cb();
   });
 }
@@ -86,19 +140,21 @@ var store = {
 
 
 var describe = function(str, fn ){
-  var parentDesc = store.currentDescribe;
+  var parentNode = store.currentDescribe;
   var descItem = {
     name: str,
     its: [],
-    indent: '  ' + ( parentDesc? parentDesc.indent : '' ),
+    indent: '  ' + ( parentNode? parentNode.indent : '' ),
+    errorCount: 0,
+    parentNode: parentNode,
   };
   store.currentDescribe = descItem;
 
   fn();
 
-  if( parentDesc ){
-    parentDesc.its.push( descItem );
-    store.currentDescribe = parentDesc;
+  if( parentNode ){
+    parentNode.its.push( descItem );
+    store.currentDescribe = parentNode;
   } else {
     runner(descItem);
   }
@@ -107,22 +163,21 @@ var describe = function(str, fn ){
 
 
 var it = function( str, fn ){
-
-  store.currentDescribe.its.push({ 
-    name : str,
-    fn: fn
-  });
+  var task = new Task(str, fn, store.currentDescribe );
+  store.currentDescribe.its.push( task );
 };
 it.skip = function(){};
 
 
 var before = function( fn ){
-  store.currentDescribe.before = fn;
+  var task = new Task('Before hook', fn, store.currentDescribe );
+  store.currentDescribe.before = task;
 };
 
 
 var after = function( fn ){
-  store.currentDescribe.after = fn;
+  var task = new Task('After hook', fn, store.currentDescribe );
+  store.currentDescribe.after = task;
 };
 
 
