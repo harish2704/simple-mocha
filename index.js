@@ -13,7 +13,7 @@
 
 
 /* Don't do anything if we are in Mocha's environment */
-if( global.describe ){ return; }
+// if( global.describe ){ return; }
 
 
 
