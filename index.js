@@ -104,7 +104,6 @@ function runner( d, cb ){
 
     /* Then each It functions */
     function(cb){
-      console.log( 'starting its...');
       async.eachSeries(d.its,
       function(itItem, cb ){
 
