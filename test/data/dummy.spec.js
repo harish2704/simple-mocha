@@ -1,4 +1,4 @@
-/* globals describe, it, before */
+/* globals describe, it, before, after */
 
 var messageLog = [];
 var pr = function( msg ){
@@ -42,11 +42,18 @@ var it2 = asyncFn({
   error: null,
 });
 
+var afterFn = asyncFn({
+  msg: 'After_block',
+  delay: 60,
+  error: null,
+});
 
 describe( 'describe', function(){
 
   before( beforeFn );
   it( 'it1', it1 );
   it( 'it2', it2 );
+  after( afterFn );
+
 
 });

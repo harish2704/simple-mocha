@@ -46,6 +46,12 @@ describe( 'Simple before block + it s ', function(){
             assert( itBlk.fn );
           });
         });
+
+
+        it( 'should parse after blocks', function(){
+          assert( firsDescribeBlock.afterFn );
+        });
+
       });
     });
   });
