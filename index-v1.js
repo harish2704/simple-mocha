@@ -1,5 +1,6 @@
 
-var _d = console.log.bind( console, 'dbg: ' );
+// var _d = console.log.bind( console, 'dbg: ' );
+var _d = function(){};
 var fs = require('fs');
 
 function DescribeBlock( parentBlock ){

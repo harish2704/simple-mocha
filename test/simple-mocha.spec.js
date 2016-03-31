@@ -7,24 +7,32 @@ var assert = require('assert');
 
 describe( 'Simple before block + it s ', function(){
 
-  it( 'should parse simple test file' , function( done ){
+  describe( 'should parse simple test file' , function(){
 
     var runner = SimpleMocha.load( __dirname + '/data/dummy.spec.js' );
 
-    assert( runner );
+    it( 'should load', function(){
+      assert( runner );
+    })
 
     var describeBlock = runner.rootDescribeBlock;
 
-    assert( describeBlock );
-    assert( describeBlock instanceof SimpleMocha.DescribeBlock );
-    assert.equal( describeBlock.children.length, 1 );
+    it( 'should have a root describe block', function(){
+      assert( describeBlock );
+      assert( describeBlock instanceof SimpleMocha.DescribeBlock );
+      assert.equal( describeBlock.children.length, 1 );
+    });
 
     var firsDescribeBlock = describeBlock.children[0];
 
 
-    assert( firsDescribeBlock instanceof SimpleMocha.DescribeBlock );
-    assert( firsDescribeBlock.beforeFn );
+    it( 'rootDescribeBlock should have child blocks', function(){
+      assert( firsDescribeBlock instanceof SimpleMocha.DescribeBlock );
+    });
 
-    done();
+    it( 'child describeBlock should parse before hook', function(){
+      assert( firsDescribeBlock.beforeFn );
+    });
+
   });
 })
