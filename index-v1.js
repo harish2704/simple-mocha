@@ -1,10 +1,35 @@
 
+
 // var _d = console.log.bind( console, 'dbg: ' );
 var _d = function(){};
 var fs = require('fs');
 
-function DescribeBlock( parentBlock ){
+
+
+function mkAsyncFn( fn ){
+  return function( done ){
+    setTimeout( function(){
+      fn();
+      done();
+    }, 1 );
+  };
+}
+
+
+
+function ItBlock( description, fn ){
+  var isAsync = ( fn.length > 0 );
+
+  this.description = description;
+  this.fn = isAsync ? fn : mkAsyncFn( fn );
+}
+
+
+
+function DescribeBlock( description, parentBlock ){
   _d( 'DescribeBlock:init', parentBlock );
+
+  this.description = description || '';
   this.parent = parentBlock;
   if( parentBlock ){
     parentBlock.addChild( this );
@@ -16,8 +41,14 @@ function DescribeBlock( parentBlock ){
   this.afterEach = null;
 }
 
+
 DescribeBlock.prototype.addChild = function( child ){
   this.children.push( child );
+};
+
+
+DescribeBlock.prototype.addItBlock = function( description, fn ){
+  this.its.push( new ItBlock( description, fn ) );
 };
 
 
@@ -36,19 +67,26 @@ function SimpleMocha(){
   this.currentDescribeBlock = this.rootDescribeBlock;
 }
 
+
 SimpleMocha.prototype.describe   = function( description, fn ){
   var parentDescribeBlock = this.currentDescribeBlock;
-  var thisDescribeBlock = new DescribeBlock( parentDescribeBlock );
+  var thisDescribeBlock = new DescribeBlock( description, parentDescribeBlock );
 
   this.currentDescribeBlock = thisDescribeBlock;
   fn();
   this.currentDescribeBlock = parentDescribeBlock;
 };
 
-SimpleMocha.prototype.it         = function(){};
+
+SimpleMocha.prototype.it         = function( description, fn ){
+  this.currentDescribeBlock.addItBlock( description, fn );
+};
+
+
 SimpleMocha.prototype.before     = function( fn ){
   this.currentDescribeBlock.beforeFn = fn;
 };
+
 
 SimpleMocha.prototype.after      = function(){};
 SimpleMocha.prototype.beforeEach = function(){};
