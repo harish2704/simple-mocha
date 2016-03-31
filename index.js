@@ -18,9 +18,11 @@ if( global.describe ){ return; }
 
 
 var async = require('async');
+var TXT_OK = '\u001b[32m\u001b[1m' + 'Okey' + '\u001b[22m\u001b[39m';
+var TXT_FAIL = '\u001b[31m\u001b[1m' + 'Fail' + '\u001b[22m\u001b[39m';
 
 function padding( str, width ){
-  return ( '          ' + str ).slice(-width);
+  return ( '                 ' + str ).slice(-width);
 }
 
 var printer = function(prefix){
@@ -75,9 +77,10 @@ Task.prototype.print = function(){
   var timeTaken = this.endTime - this.startTime;
   var err = this.err;
   console.log(
+    ( err ? TXT_FAIL :  TXT_OK ) +
+    '   '+
     this.parentNode.indent +
     this.name +
-    ( err? ' Fail ' : '  OK  ' )+
     padding( '(' + timeTaken + 'ms) ' , 11));
   if(err){
     console.log('');
