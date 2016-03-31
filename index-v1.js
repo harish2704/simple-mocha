@@ -7,6 +7,9 @@ var fs = require('fs');
 
 
 function mkAsyncFn( fn ){
+  if( fn.length ){
+    return fn;
+  }
   return function( done ){
     setTimeout( function(){
       fn();
@@ -18,10 +21,8 @@ function mkAsyncFn( fn ){
 
 
 function ItBlock( description, fn ){
-  var isAsync = ( fn.length > 0 );
-
   this.description = description;
-  this.fn = isAsync ? fn : mkAsyncFn( fn );
+  this.fn = mkAsyncFn( fn );
 }
 
 
@@ -84,11 +85,13 @@ SimpleMocha.prototype.it         = function( description, fn ){
 
 
 SimpleMocha.prototype.before     = function( fn ){
-  this.currentDescribeBlock.beforeFn = fn;
+  this.currentDescribeBlock.beforeFn = mkAsyncFn( fn );
 };
 
 
-SimpleMocha.prototype.after      = function(){};
+SimpleMocha.prototype.after      = function( fn ){
+  this.currentDescribeBlock.afterFn = mkAsyncFn( fn );
+};
 SimpleMocha.prototype.beforeEach = function(){};
 SimpleMocha.prototype.afterEach  = function(){};
 
