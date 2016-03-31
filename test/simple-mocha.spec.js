@@ -7,7 +7,8 @@ var assert = require('assert');
 
 describe( 'Simple before block + it s ', function(){
 
-  describe( 'should parse simple test file' , function(){
+
+  describe( 'SimpleMocha instance' , function(){
 
     var runner = SimpleMocha.load( __dirname + '/data/dummy.spec.js' );
 
@@ -26,26 +27,26 @@ describe( 'Simple before block + it s ', function(){
     var firsDescribeBlock = describeBlock.children[0];
 
 
-    it( 'rootDescribeBlock should have child blocks', function(){
-      assert( firsDescribeBlock instanceof SimpleMocha.DescribeBlock );
-    });
+    describe( 'rootDescribeBlock', function(){
+      it( 'should have child blocks', function(){
+        assert( firsDescribeBlock instanceof SimpleMocha.DescribeBlock );
+      });
 
-    it( 'child describeBlock should parse before hook', function(){
-      assert( firsDescribeBlock.beforeFn );
-    });
+      describe( 'Child describeBlock', function(){
+        it( 'should parse before hook', function(){
+          assert( firsDescribeBlock.beforeFn );
+        });
 
 
-
-    it( 'child describeBlock should parse it blocks', function(){
-      assert.equal( firsDescribeBlock.its.length, 2 );
-      firsDescribeBlock.its.forEach( function( itBlk ){
-        assert( itBlk );
-        assert( itBlk.description );
-        assert( itBlk.fn );
+        it( 'should parse it blocks', function(){
+          assert.equal( firsDescribeBlock.its.length, 2 );
+          firsDescribeBlock.its.forEach( function( itBlk ){
+            assert( itBlk );
+            assert( itBlk.description );
+            assert( itBlk.fn );
+          });
+        });
       });
     });
-
-
-
   });
 })
