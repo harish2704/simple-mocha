@@ -34,5 +34,11 @@ describe( 'Simple before block + it s ', function(){
       assert( firsDescribeBlock.beforeFn );
     });
 
+
+
+    it( 'child describeBlock should parse it blocks', function(){
+      assert.equal( firsDescribeBlock.its.length, 2 );
+    });
+
   });
 })
