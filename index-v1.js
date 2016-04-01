@@ -2,20 +2,36 @@
 
 // var _d = console.log.bind( console, 'dbg: ' );
 var _d = function(){};
-var fs = require('fs');
+var async = require('async');
 
 
+var pr = console.log;
+var INDENT = '   ';
+
+function safeFn( fn ){
+  return function( done ){
+    try{
+      fn( done )
+    } catch( e ){
+      done( e );
+    }
+  }
+}
+
+function getIndent( level ){
+  return INDENT.repeat( level );
+}
 
 function mkAsyncFn( fn ){
   if( fn.length ){
-    return fn;
+    return safeFn( fn );
   }
-  return function( done ){
+  return safeFn( function( done ){
     setTimeout( function(){
       fn();
       done();
     }, 1 );
-  };
+  });
 }
 
 
@@ -25,6 +41,11 @@ function ItBlock( description, fn ){
   this.fn = mkAsyncFn( fn );
 }
 
+ItBlock.prototype.run = function( done ){
+  pr( getIndent( this.parent.level+1 ) + this.description );
+  this.fn( done );
+}
+
 
 
 function DescribeBlock( description, parentBlock ){
@@ -32,10 +53,12 @@ function DescribeBlock( description, parentBlock ){
 
   this.description = description || '';
   this.parent = parentBlock;
+  this.level = parentBlock ? parentBlock.level +1 : 0;
   if( parentBlock ){
     parentBlock.addChild( this );
   }
 
+  this.tasks = [];
   this.children = [];
   this.its = [];
   this.beforeEach = null;
@@ -45,12 +68,38 @@ function DescribeBlock( description, parentBlock ){
 
 DescribeBlock.prototype.addChild = function( child ){
   this.children.push( child );
+  this.tasks.push( child );
 };
 
 
 DescribeBlock.prototype.addItBlock = function( description, fn ){
-  this.its.push( new ItBlock( description, fn ) );
+  var itBlock = new ItBlock( description, fn );
+  itBlock.parent = this;
+  this.its.push( itBlock );
+  this.tasks.push( itBlock );
 };
+
+DescribeBlock.prototype.run = function( cb ){
+  var tasks = [];
+
+  if( this.beforeFn ){ tasks.push( this.beforeFn ); }
+
+  this.tasks.forEach( function( itBlock ){
+    if( itBlock instanceof ItBlock ){
+      if( this.beforeEachFn ){ tasks.push( this.beforeEachFn ); }
+      tasks.push( itBlock.run.bind( itBlock ) );
+      if( this.afterEachFn ){ tasks.push( this.afterEachFn ); }
+    } else {
+      tasks.push( itBlock.run.bind( itBlock ) );
+    }
+  }, this );
+
+  if( this.afterFn ){ tasks.push( this.afterFn ); }
+
+
+  pr( getIndent( this.level) + this.description );
+  return async.waterfall( tasks, cb );
+}
 
 
 
@@ -76,6 +125,10 @@ SimpleMocha.prototype.describe   = function( description, fn ){
   this.currentDescribeBlock = thisDescribeBlock;
   fn();
   this.currentDescribeBlock = parentDescribeBlock;
+
+  if( parentDescribeBlock.parent === undefined ){
+    this.onLoad && this.onLoad();
+  }
 };
 
 
@@ -105,24 +158,6 @@ SimpleMocha.prototype.afterEach = function( fn ){
 
 
 SimpleMocha.DescribeBlock = DescribeBlock;
-
-
-SimpleMocha.load = function( fileName ){
-  var sm = new SimpleMocha();
-  var describe    = sm.describe;
-  var it          = sm.it;
-  var before      = sm.before;
-  var after       = sm.after;
-  var beforeEach  = sm.beforeEach;
-  var afterEach   = sm.afterEach;
-
-  var code = fs.readFileSync( fileName, 'utf-8' );
-
-  eval( code );
-  
-  return sm;
-};
-
 
 
 module.exports = SimpleMocha;
