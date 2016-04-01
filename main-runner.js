@@ -8,7 +8,9 @@ var SimpleMocha = require( './index-v1' );
 var sm = new SimpleMocha();
 
 sm.onLoad = function(){
-  sm.rootDescribeBlock.run();
+  sm.rootDescribeBlock.run( function( err ){
+      console.log( err ? 'Finished with error' : 'Finished Successfully', err );
+  });
 }
 
 

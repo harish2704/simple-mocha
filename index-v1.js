@@ -6,7 +6,19 @@ var async = require('async');
 
 
 var pr = console.log;
+
 var INDENT = '   ';
+var STATUS_FLAG = {
+  true  : 'Okey',
+  false : 'Fail'
+};
+
+function print( level, item ){
+  var indent = getIndent( level );
+  var status = STATUS_FLAG[ item.isSuccess ];
+  var timeTaken = '(' + ( item.endTime - item.startTime ) + 'ms)';
+  pr( [ indent, status, item.description, timeTaken ].join(' ') );
+};
 
 function safeFn( fn ){
   return function( done ){
@@ -39,12 +51,26 @@ function mkAsyncFn( fn ){
 function ItBlock( description, fn ){
   this.description = description;
   this.fn = mkAsyncFn( fn );
+  this.isSuccess = false;
 }
 
 ItBlock.prototype.run = function( done ){
-  pr( getIndent( this.parent.level+1 ) + this.description );
-  this.fn( done );
+  var self = this;
+  this.startTime = Date.now();
+  this.fn( function( err ){
+    self.endTime = Date.now();
+    if( !err ){
+      self.isSuccess = true;
+    }
+    self.print();
+    done( err );
+  });
 }
+
+ItBlock.prototype.print = function(){
+  print( this.parent.level+1, this );
+};
+
 
 
 
@@ -63,6 +89,8 @@ function DescribeBlock( description, parentBlock ){
   this.its = [];
   this.beforeEach = null;
   this.afterEach = null;
+
+  this.isSuccess = false;
 }
 
 
@@ -81,6 +109,7 @@ DescribeBlock.prototype.addItBlock = function( description, fn ){
 
 DescribeBlock.prototype.run = function( cb ){
   var tasks = [];
+  var self = this;
 
   if( this.beforeFn ){ tasks.push( this.beforeFn ); }
 
@@ -96,9 +125,22 @@ DescribeBlock.prototype.run = function( cb ){
 
   if( this.afterFn ){ tasks.push( this.afterFn ); }
 
+  pr( getIndent( this.level) + '---' + this.description + '---' );
+  this.startTime = Date.now();
+  return async.waterfall( tasks, function( err ){
+    
+    self.endTime = Date.now();
+    if( !err ){
+      self.isSuccess = true;
+    }
+    self.print();
+    cb && cb( err );
+  });
+}
 
-  pr( getIndent( this.level) + this.description );
-  return async.waterfall( tasks, cb );
+
+DescribeBlock.prototype.print = function(){
+  print( this.level, this );
 }
 
 
