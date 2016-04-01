@@ -1,8 +1,10 @@
 /* globals describe, it,  */
 
-var SimpleMocha = require( __dirname + '/../index-v1' );
-
+require( __dirname + '/../main-runner' );
+var SimpleMocha = require( __dirname + '/../test-runner' );
 var assert = require('assert');
+var utils = require( './data/utils');
+var messageLog = utils.messageLog;
 
 
 describe( 'Simple before block + it s ', function(){
@@ -98,6 +100,18 @@ describe( 'Simple before block + it s ', function(){
           assert( childDescribeBlock.afterEachFn );
         })
       })
+
+
+      describe( 'Running: first level block', function(){
+
+        it( 'should run ', function( done ){
+          firsDescribeBlock.run( function( err ){
+            console.log( 'messageLog', messageLog );
+            done( err );
+          })
+        })
+      })
+
     });
   });
 })

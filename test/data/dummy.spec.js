@@ -2,6 +2,8 @@
 
 
 var utils = require( './test/data/utils' );
+// require( '../../main-runner' );
+// var utils = require( './utils' );
 var resolvingFn = utils.resolvingFn;
 
 
