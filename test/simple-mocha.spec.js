@@ -61,6 +61,43 @@ describe( 'Simple before block + it s ', function(){
         })
 
       });
+
+      describe( 'second level child block', function( ){
+
+        it( 'should have second level describeBlock', function( ){
+          assert.equal( firsDescribeBlock.children.length, 1 );
+          assert( firsDescribeBlock.children[0] );
+        });
+
+        var childDescribeBlock =  firsDescribeBlock.children[0];
+
+        it( 'should parse before hook', function(){
+          assert( childDescribeBlock.beforeFn );
+        });
+
+
+        it( 'should parse it blocks', function(){
+          assert.equal( childDescribeBlock.its.length, 2 );
+          childDescribeBlock.its.forEach( function( itBlk ){
+            assert( itBlk );
+            assert( itBlk.description );
+            assert( itBlk.fn );
+          });
+        });
+
+
+        it( 'should parse after blocks', function(){
+          assert( childDescribeBlock.afterFn );
+        });
+
+        it( 'should parse beforeEach block', function(){
+          assert( childDescribeBlock.beforeEachFn );
+        })
+
+        it( 'should parse afterEach block', function(){
+          assert( childDescribeBlock.afterEachFn );
+        })
+      })
     });
   });
 })
