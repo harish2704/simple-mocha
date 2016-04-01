@@ -52,6 +52,14 @@ describe( 'Simple before block + it s ', function(){
           assert( firsDescribeBlock.afterFn );
         });
 
+        it( 'should parse beforeEach block', function(){
+          assert( firsDescribeBlock.beforeEachFn );
+        })
+
+        it( 'should parse afterEach block', function(){
+          assert( firsDescribeBlock.afterEachFn );
+        })
+
       });
     });
   });
