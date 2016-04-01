@@ -9,7 +9,10 @@ var sm = new SimpleMocha();
 
 sm.onLoad = function(){
   sm.rootDescribeBlock.run( function( err ){
-      console.log( err ? 'Finished with error' : 'Finished Successfully', err );
+    console.log( err ? 'Finished with error' : 'Finished Successfully' );
+    if( err ){
+      console.log( err.stack || err );
+    }
   });
 }
 

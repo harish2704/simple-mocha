@@ -7,10 +7,10 @@ var async = require('async');
 
 var pr = console.log;
 
-var INDENT = '   ';
+var INDENT = '  ';
 var STATUS_FLAG = {
-  true  : 'Okey',
-  false : 'Fail'
+  true  : '\u001b[32m\u001b[1m' +  '✔' + '\u001b[22m\u001b[39m',
+  false : '\u001b[31m\u001b[1m' + '✗' + '\u001b[22m\u001b[39m',
 };
 
 function print( level, item ){
@@ -125,7 +125,7 @@ DescribeBlock.prototype.run = function( cb ){
 
   if( this.afterFn ){ tasks.push( this.afterFn ); }
 
-  pr( getIndent( this.level) + '---' + this.description + '---' );
+  pr( getIndent( this.level) + ' ---' + this.description + '---' );
   this.startTime = Date.now();
   return async.waterfall( tasks, function( err ){
     
