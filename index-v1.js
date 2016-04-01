@@ -92,8 +92,16 @@ SimpleMocha.prototype.before     = function( fn ){
 SimpleMocha.prototype.after      = function( fn ){
   this.currentDescribeBlock.afterFn = mkAsyncFn( fn );
 };
-SimpleMocha.prototype.beforeEach = function(){};
-SimpleMocha.prototype.afterEach  = function(){};
+
+
+SimpleMocha.prototype.beforeEach = function( fn ){
+  this.currentDescribeBlock.beforeEachFn = mkAsyncFn( fn );
+};
+
+
+SimpleMocha.prototype.afterEach = function( fn ){
+  this.currentDescribeBlock.afterEachFn = mkAsyncFn( fn );
+};
 
 
 SimpleMocha.DescribeBlock = DescribeBlock;
@@ -105,8 +113,8 @@ SimpleMocha.load = function( fileName ){
   var it          = sm.it;
   var before      = sm.before;
   var after       = sm.after;
-  var beforeEach  = sm.after;
-  var afterEach   = sm.after;
+  var beforeEach  = sm.beforeEach;
+  var afterEach   = sm.afterEach;
 
   var code = fs.readFileSync( fileName, 'utf-8' );
 
