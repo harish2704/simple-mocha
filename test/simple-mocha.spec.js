@@ -1,10 +1,9 @@
 /* globals describe, it,  */
 
-require( __dirname + '/../main-runner' );
-var SimpleMocha = require( __dirname + '/../test-runner' );
+require( __dirname + '/../index' );
+var SimpleMocha = require( __dirname + '/../src/test-runner' );
+var DescribeBlock = require( __dirname + '/../src/describe-block' );
 var assert = require('assert');
-var utils = require( './data/utils');
-var messageLog = utils.messageLog;
 
 
 describe( 'Simple before block + it s ', function(){
@@ -22,16 +21,17 @@ describe( 'Simple before block + it s ', function(){
 
     it( 'should have a root describe block', function(){
       assert( describeBlock );
-      assert( describeBlock instanceof SimpleMocha.DescribeBlock );
+      assert( describeBlock instanceof DescribeBlock );
       assert.equal( describeBlock.children.length, 1 );
     });
+
 
     var firsDescribeBlock = describeBlock.children[0];
 
 
     describe( 'rootDescribeBlock', function(){
       it( 'should have child blocks', function(){
-        assert( firsDescribeBlock instanceof SimpleMocha.DescribeBlock );
+        assert( firsDescribeBlock instanceof DescribeBlock );
       });
 
       describe( 'Child describeBlock', function(){
