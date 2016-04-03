@@ -2,7 +2,7 @@
 
 var context = global;
 if( context.describe ){
-  return;
+  return; // Don't do anything if mocha any other bdd-runner is already loaded
 }
 var SimpleMocha = require( './simple-mocha' );
 var sm = new SimpleMocha();
