@@ -1,4 +1,7 @@
 
+var utils = require( './utils' );
+var print = utils.print;
+
 
 function ItBlock( description, fn ){
   this.description = description;

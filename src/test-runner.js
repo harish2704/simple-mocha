@@ -1,5 +1,5 @@
 
-var SimpleMocha = require( './index-v1' );
+var SimpleMocha = require( './simple-mocha' );
 var fs = require('fs');
 
 SimpleMocha.load = function( fileName ){

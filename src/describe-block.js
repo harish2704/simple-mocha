@@ -4,6 +4,7 @@ var ItBlock = require( './it-block' );
 var utils = require( './utils' );
 var mkAsyncFn = utils.mkAsyncFn;
 var pr = utils.pr;
+var print = utils.print;
 var getIndent = utils.getIndent;
 
 function DescribeBlock( description, parentBlock ){
@@ -20,6 +21,7 @@ function DescribeBlock( description, parentBlock ){
 
   this.isSuccess = false;
 }
+
 
 DescribeBlock.prototype.__defineGetter__( 'children', function(){
   return this.tasks.filter( function( task ){

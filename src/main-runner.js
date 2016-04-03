@@ -4,7 +4,7 @@ var context = global;
 if( context.describe ){
   return;
 }
-var SimpleMocha = require( './index-v1' );
+var SimpleMocha = require( './simple-mocha' );
 var sm = new SimpleMocha();
 
 sm.onLoad = function(){
