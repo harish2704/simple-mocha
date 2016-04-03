@@ -50,7 +50,7 @@ function mkAsyncFn( fn ){
 
 function ItBlock( description, fn ){
   this.description = description;
-  this.fn = mkAsyncFn( fn );
+  this.fn = fn;
   this.isSuccess = false;
 }
 
@@ -101,7 +101,7 @@ DescribeBlock.prototype.addChild = function( child ){
 
 
 DescribeBlock.prototype.addItBlock = function( description, fn ){
-  var itBlock = new ItBlock( description, fn );
+  var itBlock = new ItBlock( description, mkAsyncFn( fn ) );
   itBlock.parent = this;
   this.its.push( itBlock );
   this.tasks.push( itBlock );
