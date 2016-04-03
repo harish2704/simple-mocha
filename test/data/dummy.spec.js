@@ -1,11 +1,12 @@
 /* globals describe, it, before, after, beforeEach, afterEach */
 
 
-var utils = require( './test/data/utils' );
-// require( '../../main-runner' );
+// require( '../../index' );  // Toggle commenting to run test directly .
 // var utils = require( './utils' );
-var resolvingFn = utils.resolvingFn;
+var utils = require( '../test/data/utils' );
 
+
+var resolvingFn = utils.resolvingFn;
 
 var beforeFn = resolvingFn( 'Before_block' );
 var it1 = resolvingFn( 'It_1' );
