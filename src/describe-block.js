@@ -30,7 +30,7 @@ DescribeBlock.prototype.__defineGetter__( 'children', function(){
 });
 
 
-DescribeBlock.prototype.__defineGetter__( 'children', function(){
+DescribeBlock.prototype.__defineGetter__( 'its', function(){
   return this.tasks.filter( function( task ){
     return task instanceof ItBlock;
   });
