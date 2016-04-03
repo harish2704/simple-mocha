@@ -106,7 +106,7 @@ describe( 'Simple before block + it s ', function(){
 
         it( 'should run ', function( done ){
           firsDescribeBlock.run( function( err ){
-            console.log( 'messageLog', messageLog );
+            // console.log( 'messageLog', messageLog );
             done( err );
           })
         })
