@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/harish2704/simple-mocha.svg?branch=master)](https://travis-ci.org/harish2704/simple-mocha)
 # simple-mocha
 Simple stupid implementation of Mocha test runner. Tests can be run directly within node as any Nodejs code.
 
